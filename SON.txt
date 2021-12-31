@@ -1,0 +1,334 @@
+    .data
+prompt:     .asciiz     "Enter string ('.' to end) > "
+dot:        .asciiz     "."
+eqmsg:      .asciiz     "strings 1-2 are equal\n"
+nemsg:      .asciiz     "strings 1-2 are not equal\n"
+eqmsg0:      .asciiz     "strings 1-3 are equal\n"
+nemsg0:      .asciiz     "strings 1-3 are not equal\n"
+eqmsg00:      .asciiz     "strings 1-4 are equal\n"
+nemsg00:      .asciiz     "strings 1-4 are not equal\n"
+eqmsg000:      .asciiz     "strings 1-5 are equal\n"
+nemsg000:      .asciiz     "strings 1-5 are not equal\n"
+
+str1:       .space      80
+str2:       .space      80
+str3:       .space      80
+str4:       .space      80
+str5:       .space      80
+A: .byte 'A'
+T: .byte 'T'
+G: .byte 'G'
+C: .byte 'C'
+
+
+    .text
+
+    .globl  main
+main:
+	#get A T G C byte
+	lb $s4,A
+	lb $s5,T
+	lb $s6,G
+	lb $s7,C
+    # get first string
+    la      $s2,str1
+    move    $t2,$s2
+    jal     getstr
+
+    # get second string
+    la      $s3,str2
+    move    $t2,$s3
+    jal     getstr
+    # get third string
+    la      $s1,str3
+    move    $t2,$s1
+    jal     getstr
+     # get FOURTH string
+    la      $s0,str4
+    move    $t2,$s0
+    jal     getstr
+    
+     # get FİVETH string
+    la      $a2,str5
+    move    $t2,$a2
+    jal     getstr
+    
+# string compare loop (just like strcmp)
+cmploop:
+    lb      $t2,($s2)                   # get next char from str1
+    lb      $t3,($s3)                   # get next char from str2
+   				              # are they different? if yes, fly
+ 
+ 	beq     $t2,$s4,cmpl #A
+ 	beq     $t2,$s5,cmp2 #T
+ 	beq     $t2,$s6,cmp3 #G	
+ 	beq     $t2,$s7,cmp4 #C
+ 	beq     $t2,$zero,cmpeq   
+ 	addi    $s2,$s2,1                   # point to next char
+    	addi    $s3,$s3,1                   # point to next char
+    	j       cmploop
+ cmpl:   
+    bne     $t3,$s5,cmpne     
+
+    beq     $t2,$zero,cmpeq             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s3,$s3,1                   # point to next char
+    j       cmploop
+cmp2:   
+    bne     $t3,$s4,cmpne     
+
+    beq     $t2,$zero,cmpeq             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s3,$s3,1                   # point to next char
+    j       cmploop
+cmp3:   
+    bne     $t3,$s7,cmpne     
+
+    beq     $t2,$zero,cmpeq             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s3,$s3,1                   # point to next char
+    j       cmploop
+cmp4:   
+    bne     $t3,$s6,cmpne     
+
+    beq     $t2,$zero,cmpeq             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s3,$s3,1                   # point to next char
+    j       cmploop
+# strings are _not_ equal -- send message
+cmpne:
+    la      $a0,nemsg
+    li      $v0,4
+    syscall
+    j       cmploop2
+
+# strings _are_ equal -- send message
+cmpeq:
+    la      $a0,eqmsg
+    li      $v0,4
+    syscall
+    j       main
+    
+    
+#compare third string
+cmploop2:
+    lb      $t2,($s2)                   # get next char from str1
+    lb      $t4,($s1)                   # get next char from str3
+   				              # are they different? if yes, fly
+ 
+ 	beq     $t2,$s4,cmpl0 #A
+ 	beq     $t2,$s5,cmp20 #T
+ 	beq     $t2,$s6,cmp30 #G	
+ 	beq     $t2,$s7,cmp40 #C
+ 	beq     $t2,$zero,cmpeq0   
+ 	addi    $s2,$s2,1                   # point to next char
+    	addi    $s1,$s1,1                   # point to next char
+    	j       cmploop2
+ cmpl0:   
+    bne     $t4,$s5,cmpne0    
+
+    beq     $t2,$zero,cmpeq0             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s1,$s1,1                   # point to next char
+    j       cmploop2
+cmp20:   
+    bne     $t4,$s4,cmpne0     
+
+    beq     $t2,$zero,cmpeq0             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s1,$s1,1                   # point to next char
+    j       cmploop2
+cmp30:   
+    bne     $t4,$s7,cmpne0     
+
+    beq     $t2,$zero,cmpeq0             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s1,$s1,1                   # point to next char
+    j       cmploop2
+cmp40:   
+    bne     $t4,$s6,cmpne0     
+
+    beq     $t2,$zero,cmpeq0             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s1,$s1,1                   # point to next char
+    j       cmploop2
+# strings are _not_ equal -- send message
+cmpne0:
+    la      $a0,nemsg0
+    li      $v0,4
+    syscall
+    j       cmploop3
+
+# strings _are_ equal -- send message
+cmpeq0:
+    la      $a0,eqmsg0
+    li      $v0,4
+    syscall
+    j       main
+
+#compare fourth string
+cmploop3:
+    lb      $t2,($s2)                   # get next char from str1
+    lb      $t5,($s0)                   # get next char from str4
+   				              # are they different? if yes, fly
+ 
+ 	beq     $t2,$s4,cmpl00 #A
+ 	beq     $t2,$s5,cmp200 #T
+ 	beq     $t2,$s6,cmp300 #G	
+ 	beq     $t2,$s7,cmp400 #C
+ 	beq     $t2,$zero,cmpeq00   
+ 	addi    $s2,$s2,1                   # point to next char
+    	addi    $s0,$s0,1                   # point to next char
+    	j       cmploop3
+ cmpl00:   
+    bne     $t5,$s5,cmpne00    
+
+    beq     $t2,$zero,cmpeq00             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s0,$s0,1                   # point to next char
+    j       cmploop3
+cmp200:   
+    bne     $t5,$s4,cmpne00     
+
+    beq     $t2,$zero,cmpeq00             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s0,$s0,1                   # point to next char
+    j       cmploop3
+cmp300:   
+    bne     $t5,$s7,cmpne00     
+
+    beq     $t2,$zero,cmpeq00             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s0,$s0,1                   # point to next char
+    j       cmploop3
+cmp400:   
+    bne     $t5,$s6,cmpne00     
+
+    beq     $t2,$zero,cmpeq00             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $s0,$s0,1                   # point to next char
+    j       cmploop3
+# strings are _not_ equal -- send message
+cmpne00:
+    la      $a0,nemsg00
+    li      $v0,4
+    syscall
+    j       cmploop4
+
+# strings _are_ equal -- send message
+cmpeq00:
+    la      $a0,eqmsg00
+    li      $v0,4
+    syscall
+    j       main
+
+
+#compare fiveth string
+cmploop4:
+    lb      $t2,($s2)                   # get next char from str1
+    lb      $t6,($a2)                   # get next char from str5
+   				              # are they different? if yes, fly
+ 
+ 	beq     $t2,$s4,cmpl000 #A
+ 	beq     $t2,$s5,cmp2000 #T
+ 	beq     $t2,$s6,cmp3000 #G	
+ 	beq     $t2,$s7,cmp4000 #C
+ 	beq     $t2,$zero,cmpeq000   
+ 	addi    $s2,$s2,1                   # point to next char
+    	addi    $a2,$a2,1                   # point to next char
+    	j       cmploop4
+ cmpl000:   
+    bne     $t6,$s5,cmpne000    
+
+    beq     $t2,$zero,cmpeq000             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $a2,$a2,1                   # point to next char
+    j       cmploop4
+cmp2000:   
+    bne     $t6,$s4,cmpne000     
+
+    beq     $t2,$zero,cmpeq000             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $a2,$a2,1                   # point to next char
+    j       cmploop4
+cmp3000:   
+    bne     $t6,$s7,cmpne000     
+
+    beq     $t2,$zero,cmpeq000             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $a2,$a2,1                   # point to next char
+    j       cmploop4
+cmp4000:   
+    bne     $t6,$s6,cmpne000     
+
+    beq     $t2,$zero,cmpeq000             # at EOS? yes, fly (strings equal)
+
+    addi    $s2,$s2,1                   # point to next char
+    addi    $a2,$a2,1                   # point to next char
+    j       cmploop4
+# strings are _not_ equal -- send message
+cmpne000:
+    la      $a0,nemsg000
+    li      $v0,4
+    syscall
+    j       main
+
+# strings _are_ equal -- send message
+cmpeq000:
+    la      $a0,eqmsg000
+    li      $v0,4
+    syscall
+    j       main
+
+
+
+
+
+
+
+
+
+
+# getstr -- prompt and read string from user
+#
+# arguments:
+#   t2 -- address of string buffer
+getstr:
+    # prompt the user
+    la      $a0,prompt
+    li      $v0,4
+    syscall
+
+    # read in the string
+    move    $a0,$t2
+    li      $a1,79
+    li      $v0,8
+    syscall
+
+    # should we stop?
+    la      $a0,dot                     # get address of dot string
+    lb      $a0,($a0)                   # get the dot value
+    lb      $t2,($t2)                   # get first char of user string
+    beq     $t2,$a0,exit                # equal? yes, exit program
+
+    jr      $ra                         # return
+
+# exit program
+exit:
+    li      $v0,10
+    syscall
